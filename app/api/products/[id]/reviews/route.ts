@@ -75,7 +75,7 @@ export async function GET(
     ])
 
     // Parse JSON fields
-    const reviewsWithParsedData = reviews.map(review => ({
+    const reviewsWithParsedData = reviews.map((review: typeof reviews[0]) => ({
       ...review,
       images: review.images ? JSON.parse(review.images) : []
     }))
