@@ -148,7 +148,7 @@ async function migrateData() {
             ...order,
             userId: order.userId || undefined,
             items: {
-              create: order.items.map(item => ({
+              create: order.items.map((item: any) => ({
                 productId: item.productId,
                 name: item.name,
                 price: item.price,
