@@ -159,8 +159,8 @@ async function getPersonalizedRecommendations(userId: number, limit: number) {
   const purchasedCategories = new Set<string>()
   const purchasedTags = new Set<string>()
 
-  userOrders.forEach(order => {
-    order.items.forEach(item => {
+  userOrders.forEach((order: any) => {
+    order.items.forEach((item: any) => {
       if (item.product.category) {
         purchasedCategories.add(item.product.category)
       }
@@ -173,8 +173,8 @@ async function getPersonalizedRecommendations(userId: number, limit: number) {
 
   // Tìm sản phẩm trong các danh mục đã mua nhưng chưa mua sản phẩm cụ thể
   const purchasedProductIds = new Set<number>()
-  userOrders.forEach(order => {
-    order.items.forEach(item => {
+  userOrders.forEach((order: any) => {
+    order.items.forEach((item: any) => {
       purchasedProductIds.add(item.productId)
     })
   })
