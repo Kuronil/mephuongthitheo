@@ -41,7 +41,7 @@ async function verifyUserEmail(email?: string) {
 
       console.log('\n📋 DANH SÁCH TẤT CẢ USERS:')
       console.log('═══════════════════════════════════════════════════════════')
-      users.forEach(user => {
+      users.forEach((user: any) => {
         console.log(`ID: ${user.id}`)
         console.log(`  Name: ${user.name}`)
         console.log(`  Email: ${user.email}`)
