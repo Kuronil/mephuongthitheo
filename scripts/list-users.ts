@@ -31,7 +31,7 @@ async function listUsers() {
 
     console.log(`Found ${users.length} user(s):\n`)
     
-    users.forEach((user, index) => {
+    users.forEach((user: any, index: number) => {
       const adminBadge = user.isAdmin ? '👑 ADMIN' : ''
       console.log(`${index + 1}. ${user.name} ${adminBadge}`)
       console.log(`   Email: ${user.email}`)

@@ -67,12 +67,12 @@ async function deleteUser() {
       })
 
       console.log(`Found ${nonAdminUsers.length} non-admin user(s) to delete:\n`)
-      nonAdminUsers.forEach((user, index) => {
+      nonAdminUsers.forEach((user: any, index: number) => {
         console.log(`${index + 1}. ${user.name} (${user.email})`)
       })
 
       console.log(`\n✅ Admin users that will be kept:`)
-      adminUsers.forEach((user) => {
+      adminUsers.forEach((user: any) => {
         console.log(`   👑 ${user.name} (${user.email})`)
       })
 
@@ -119,7 +119,7 @@ async function deleteUser() {
       }
 
       console.log(`Found ${testUsers.length} test user(s) to delete:\n`)
-      testUsers.forEach((user, index) => {
+      testUsers.forEach((user: any, index: number) => {
         console.log(`${index + 1}. ${user.name} (${user.email})`)
       })
 
