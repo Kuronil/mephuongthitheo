@@ -88,14 +88,14 @@ export default function QuickSearch({ className = "" }: QuickSearchProps) {
         </div>
         <div className="grid grid-cols-2 gap-3">
           <button
-            onClick={() => router.push('/products?category=thit-heo')}
+            onClick={() => router.push('/products')}
             className="p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg hover:from-orange-100 hover:to-orange-200 transition text-left"
           >
             <div className="font-semibold text-gray-800">Thịt Heo</div>
             <div className="text-sm text-gray-600">Tươi ngon, chất lượng cao</div>
           </button>
           <button
-            onClick={() => router.push('/products?category=san-pham-che-bien')}
+            onClick={() => router.push('/processed-products')}
             className="p-4 bg-gradient-to-r from-red-50 to-red-100 rounded-lg hover:from-red-100 hover:to-red-200 transition text-left"
           >
             <div className="font-semibold text-gray-800">Sản Phẩm Chế Biến</div>
