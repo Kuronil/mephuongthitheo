@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { authenticateUser } from "@/lib/auth-middleware"
 import { sanitizeReview, sanitizeText } from "@/lib/sanitize"
+import { Prisma } from "@prisma/client"
 
 // GET /api/products/[id]/reviews - Lấy danh sách đánh giá sản phẩm (có thể dùng ID hoặc slug)
 export async function GET(
@@ -92,7 +93,7 @@ export async function GET(
     })
 
     const ratingDistribution = Array.from({ length: 5 }, (_, i) => {
-      const stat = ratingStats.find(s => s.rating === i + 1)
+      const stat = ratingStats.find((s: any) => s.rating === i + 1)
       return {
         rating: i + 1,
         count: stat?._count.rating || 0
@@ -100,7 +101,7 @@ export async function GET(
     })
 
     const averageRating = reviewsWithParsedData.length > 0 
-      ? reviewsWithParsedData.reduce((sum, review) => sum + review.rating, 0) / reviewsWithParsedData.length
+      ? reviewsWithParsedData.reduce((sum: number, review: any) => sum + review.rating, 0) / reviewsWithParsedData.length
       : 0
 
     return NextResponse.json({
@@ -235,7 +236,7 @@ export async function POST(
       select: { rating: true }
     })
 
-    const newAverageRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length
+    const newAverageRating = allReviews.reduce((sum: number, r: any) => sum + r.rating, 0) / allReviews.length
 
     await prisma.product.update({
       where: { id: product.id },
