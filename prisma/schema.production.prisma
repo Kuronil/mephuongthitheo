@@ -1,0 +1,311 @@
+// prisma/schema.prisma - Production version với PostgreSQL
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                       Int                  @id @default(autoincrement())
+  name                     String
+  email                    String               @unique
+  password                 String
+  address                  String?
+  phone                    String?
+  isAdmin                  Boolean              @default(false)
+  emailVerified            Boolean              @default(false)
+  verificationToken        String?
+  verificationTokenExpiry  DateTime?
+  resetPasswordToken       String?
+  resetPasswordTokenExpiry DateTime?
+  createdAt                DateTime             @default(now())
+  orders                   Order[]
+  wishlist                 WishlistItem[]
+  cart                     CartItem[]
+  statusLogs               OrderStatusLog[]
+  reviews                  ProductReview[]
+  loyaltyPoints            Int                  @default(0)
+  loyaltyTier              String               @default("BRONZE") // BRONZE, SILVER, GOLD, PLATINUM
+  loyaltyTransactions      LoyaltyTransaction[]
+  notifications            Notification[]
+  adminLogs                AdminLog[]
+  productHistory           ProductHistory[]
+  orderHistory             OrderHistory[]
+
+  @@index([email])
+  @@index([createdAt])
+  @@index([isAdmin])
+}
+
+model Order {
+  id                  Int                  @id @default(autoincrement())
+  userId              Int?
+  total               Float
+  name                String
+  phone               String
+  address             String
+  note                String?
+  paymentMethod       String
+  status              String
+  items               OrderItem[]
+  statusLogs          OrderStatusLog[]
+  loyaltyTransactions LoyaltyTransaction[]
+  history             OrderHistory[]
+
+  // VNPay payment fields
+  vnpayTransactionNo   String?
+  vnpayBankCode        String?
+  vnpayCardType        String?
+  vnpayPayDate         String?
+  vnpayResponseCode    String?
+  vnpayResponseMessage String?
+  paidAt               DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([paymentMethod])
+  @@index([status, createdAt])
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  name      String
+  price     Float
+  quantity  Int
+  image     String?
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model WishlistItem {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  productId     Int
+  name          String
+  price         Float
+  image         String?
+  originalPrice Float?
+  discount      Int?
+  rating        Float?
+  reviews       Int?
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id])
+  product       Product  @relation(fields: [productId], references: [id])
+
+  @@index([userId])
+  @@index([productId])
+  @@index([userId, productId])
+}
+
+model CartItem {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  productId     Int
+  name          String
+  price         Float
+  quantity      Int
+  image         String?
+  originalPrice Float?
+  discount      Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id])
+  product       Product  @relation(fields: [productId], references: [id])
+
+  @@index([userId])
+  @@index([productId])
+  @@index([userId, productId])
+}
+
+model DiscountCode {
+  id           Int       @id @default(autoincrement())
+  code         String    @unique
+  name         String
+  description  String?
+  discount     Int // Phần trăm giảm giá
+  minAmount    Float? // Số tiền tối thiểu để áp dụng
+  maxDiscount  Float? // Số tiền giảm tối đa
+  freeShipping Boolean   @default(false)
+  isActive     Boolean   @default(true)
+  validFrom    DateTime?
+  validTo      DateTime?
+  usageLimit   Int? // Giới hạn số lần sử dụng
+  usedCount    Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([code])
+  @@index([isActive])
+  @@index([validFrom, validTo])
+}
+
+model OrderStatusLog {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  status    String
+  reason    String?
+  changedBy Int
+  changedAt DateTime @default(now())
+  order     Order    @relation(fields: [orderId], references: [id])
+  user      User     @relation(fields: [changedBy], references: [id])
+}
+
+model Product {
+  id            Int              @id @default(autoincrement())
+  name          String
+  slug          String           @unique
+  description   String?
+  price         Float
+  originalPrice Float?
+  discount      Int?
+  image         String?
+  images        String? // JSON array of image URLs
+  category      String?
+  subcategory   String?
+  brand         String?
+  weight        Float? // Weight in grams
+  unit          String? // kg, g, piece, etc.
+  stock         Int              @default(0)
+  minStock      Int              @default(5) // Alert when stock below this
+  isActive      Boolean          @default(true)
+  isFeatured    Boolean          @default(false)
+  isFlashSale   Boolean          @default(false)
+  rating        Float            @default(0)
+  reviewCount   Int              @default(0)
+  tags          String? // JSON array of tags
+  nutrition     String? // JSON nutrition facts
+  storage       String? // Storage instructions
+  expiry        Int? // Days until expiry
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  orderItems    OrderItem[]
+  wishlistItems WishlistItem[]
+  cartItems     CartItem[]
+  reviews       ProductReview[]
+  history       ProductHistory[]
+
+  @@index([slug])
+  @@index([category])
+  @@index([isActive])
+  @@index([isFeatured])
+  @@index([isFlashSale])
+  @@index([category, isActive])
+  @@index([createdAt])
+}
+
+model ProductReview {
+  id         Int      @id @default(autoincrement())
+  productId  Int
+  userId     Int
+  rating     Int // 1-5 stars
+  title      String?
+  comment    String?
+  images     String? // JSON array of review images
+  isVerified Boolean  @default(false)
+  helpful    Int      @default(0) // Number of helpful votes
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  product    Product  @relation(fields: [productId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@index([productId])
+  @@index([userId])
+  @@index([productId, createdAt])
+}
+
+model LoyaltyTransaction {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  orderId     Int?
+  type        String   // EARN, REDEEM, EXPIRED, BONUS
+  points      Int      // Positive for earn, negative for redeem
+  description String
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime?
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order       Order?   @relation(fields: [orderId], references: [id])
+  
+  @@map("loyalty_transactions")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  title     String
+  message   String
+  type      String // ORDER, PROMOTION, SYSTEM, LOYALTY
+  isRead    Boolean  @default(false)
+  data      String? // JSON data for additional info
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+model AdminLog {
+  id          Int      @id @default(autoincrement())
+  adminId     Int
+  action      String // CREATE, UPDATE, DELETE, EXPORT, etc.
+  entity      String // PRODUCT, ORDER, USER, etc.
+  entityId    Int?
+  description String
+  oldData     String? // JSON snapshot of old data
+  newData     String? // JSON snapshot of new data
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  admin User @relation(fields: [adminId], references: [id])
+
+  @@map("admin_logs")
+}
+
+model ProductHistory {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  changedBy Int // Admin user ID
+  field     String // Field name that changed
+  oldValue  String? // Old value (JSON if complex)
+  newValue  String? // New value (JSON if complex)
+  reason    String? // Reason for change
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+  changer User    @relation(fields: [changedBy], references: [id])
+
+  @@map("product_history")
+}
+
+model OrderHistory {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  changedBy Int // Admin user ID
+  field     String // Field name that changed
+  oldValue  String? // Old value
+  newValue  String? // New value
+  reason    String? // Reason for change
+  createdAt DateTime @default(now())
+
+  order   Order @relation(fields: [orderId], references: [id])
+  changer User  @relation(fields: [changedBy], references: [id])
+
+  @@map("order_history")
+}
