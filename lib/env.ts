@@ -119,7 +119,7 @@ interface ValidatedEnv {
 
 function validateEnv(): ValidatedEnv {
   const errors: string[] = []
-  const validated: Partial<ValidatedEnv> = {}
+  const validated: any = {}
 
   for (const envVar of envVars) {
     const value = process.env[envVar.name]
@@ -129,7 +129,7 @@ function validateEnv(): ValidatedEnv {
         errors.push(`Missing required environment variable: ${envVar.name}`)
       } else {
         // Use default value
-        validated[envVar.name as keyof ValidatedEnv] = (envVar.default || '') as any
+        validated[envVar.name] = envVar.default || ''
       }
     } else {
       // Validate if validator exists
@@ -142,9 +142,9 @@ function validateEnv(): ValidatedEnv {
       
       // Store validated value
       if (envVar.name === 'SMTP_PORT') {
-        validated[envVar.name as keyof ValidatedEnv] = parseInt(value) as any
+        validated[envVar.name] = parseInt(value)
       } else {
-        validated[envVar.name as keyof ValidatedEnv] = value as any
+        validated[envVar.name] = value
       }
     }
   }
