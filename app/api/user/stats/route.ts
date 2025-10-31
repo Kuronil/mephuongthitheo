@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    const totalSpent = orders.reduce((sum, order) => sum + order.total, 0)
+    const totalSpent = orders.reduce((sum: number, order: any) => sum + order.total, 0)
 
     // Đếm sản phẩm trong wishlist
     const wishlistCount = await prisma.wishlistItem.count({

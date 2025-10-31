@@ -98,8 +98,8 @@ export async function GET(request: NextRequest) {
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
     // Calculate totals and averages
-    const totalRevenue = chartData.reduce((sum, item) => sum + item.revenue, 0)
-    const totalOrders = chartData.reduce((sum, item) => sum + item.orders, 0)
+    const totalRevenue = chartData.reduce((sum: number, item: any) => sum + item.revenue, 0)
+    const totalOrders = chartData.reduce((sum: number, item: any) => sum + item.orders, 0)
     const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0
 
     return NextResponse.json({
