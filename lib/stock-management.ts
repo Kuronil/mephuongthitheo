@@ -153,7 +153,7 @@ export async function decrementStockForItems(
   try {
     // Use Prisma transaction to ensure atomicity
     // If any update fails, all changes are rolled back automatically
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       for (const item of items) {
         const result = await tx.product.updateMany({
           where: {
