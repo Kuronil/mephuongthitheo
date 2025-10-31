@@ -84,7 +84,7 @@ export async function updateUserLoyaltyTier(userId: number): Promise<{
   }
 
   // Tính tổng điểm tích lũy hiện tại
-  const totalPoints = user.loyaltyTransactions.reduce((sum, transaction) => sum + transaction.points, 0)
+  const totalPoints = user.loyaltyTransactions.reduce((sum: number, transaction: any) => sum + transaction.points, 0)
   
   // Xác định cấp độ mới
   const newTier = determineLoyaltyTier(totalPoints)
