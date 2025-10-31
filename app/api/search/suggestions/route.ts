@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
     })
     
     // Get unique categories from search results
-    const categories = Array.from(new Set(
+    const categories = (Array.from(new Set(
       products
         .map((p: any) => p.category)
         .filter(Boolean)
@@ -102,14 +102,14 @@ export async function GET(request: NextRequest) {
             .map((p: any) => p.subcategory)
             .filter(Boolean)
         )
-    )).slice(0, 5)
+    )) as string[]).slice(0, 5)
 
     // Get unique brands from search results
-    const brands = Array.from(new Set(
+    const brands = (Array.from(new Set(
       products
         .map((p: any) => p.brand)
         .filter(Boolean)
-    )).slice(0, 5)
+    )) as string[]).slice(0, 5)
 
     // Generate search suggestions
     const suggestions = [
