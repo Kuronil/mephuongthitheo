@@ -33,7 +33,7 @@ export async function restoreStockFromOrder(orderId: number) {
 
     // Restore stock for each item in a transaction
     await prisma.$transaction(
-      order.items.map((item) =>
+      order.items.map((item: any) =>
         prisma.product.update({
           where: { id: item.productId },
           data: {
