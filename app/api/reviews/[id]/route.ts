@@ -81,7 +81,7 @@ export async function PUT(
         select: { rating: true }
       })
 
-      const newAverageRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length
+      const newAverageRating = allReviews.reduce((sum: number, r: any) => sum + r.rating, 0) / allReviews.length
 
       await prisma.product.update({
         where: { id: existingReview.productId },
@@ -162,7 +162,7 @@ export async function DELETE(
     })
 
     const newAverageRating = remainingReviews.length > 0 
-      ? remainingReviews.reduce((sum, r) => sum + r.rating, 0) / remainingReviews.length
+      ? remainingReviews.reduce((sum: number, r: any) => sum + r.rating, 0) / remainingReviews.length
       : 0
 
     await prisma.product.update({
