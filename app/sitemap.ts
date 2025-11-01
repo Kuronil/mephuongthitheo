@@ -14,7 +14,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/checkout',
     '/loyalty',
     '/order-tracking',
-    '/store-location-demo',
   ]
 
   const now = new Date()
