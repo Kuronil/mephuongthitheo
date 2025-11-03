@@ -1,7 +1,7 @@
 import jwt, { SignOptions } from 'jsonwebtoken'
 import { getEnv } from './env'
 
-// JWT Secret - validated via env.ts
+// JWT Secret - đã được kiểm tra hợp lệ thông qua env.ts
 const JWT_SECRET = getEnv.jwtSecret()
 const JWT_EXPIRES_IN = getEnv.jwtExpiresIn()
 
@@ -20,7 +20,7 @@ export interface JWTPayload {
 }
 
 /**
- * Generate JWT token for user
+ * Tạo JWT token cho người dùng
  */
 export function generateToken(user: { id: number; email: string; isAdmin: boolean }): string {
   const payload: JWTPayload = {
@@ -35,7 +35,7 @@ export function generateToken(user: { id: number; email: string; isAdmin: boolea
 }
 
 /**
- * Verify and decode JWT token
+ * Xác thực và giải mã JWT token
  */
 export function verifyToken(token: string): JWTPayload | null {
   try {
@@ -47,7 +47,7 @@ export function verifyToken(token: string): JWTPayload | null {
 }
 
 /**
- * Client-side: Get token from localStorage
+ * Phía client: Lấy token từ localStorage
  */
 export const getToken = (): string | null => {
   if (typeof window === 'undefined') return null
@@ -55,7 +55,7 @@ export const getToken = (): string | null => {
 }
 
 /**
- * Client-side: Set token in localStorage
+ * Phía client: Lưu token vào localStorage
  */
 export const setToken = (token: string) => {
   if (typeof window === 'undefined') return
@@ -63,7 +63,7 @@ export const setToken = (token: string) => {
 }
 
 /**
- * Client-side: Remove token from localStorage
+ * Phía client: Xóa token khỏi localStorage
  */
 export const clearToken = () => {
   if (typeof window === 'undefined') return
@@ -72,7 +72,7 @@ export const clearToken = () => {
 }
 
 /**
- * Client-side: Get stored user (for backward compatibility)
+ * Phía client: Lấy người dùng đã lưu (để tương thích ngược)
  */
 export const getStoredUser = (): StoredUser | null => {
   if (typeof window === 'undefined') return null
@@ -88,7 +88,7 @@ export const getStoredUser = (): StoredUser | null => {
 }
 
 /**
- * Client-side: Set user in localStorage (for backward compatibility)
+ * Phía client: Lưu người dùng vào localStorage (để tương thích ngược)
  */
 export const setStoredUser = (user: StoredUser) => {
   if (typeof window === 'undefined') return

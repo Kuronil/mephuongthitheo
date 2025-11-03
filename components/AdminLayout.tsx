@@ -25,7 +25,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   if (!isAdmin) {
-    return null // Will redirect automatically
+    return null // Sẽ tự động chuyển hướng
   }
 
   return <>{children}</>

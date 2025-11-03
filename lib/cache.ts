@@ -1,8 +1,8 @@
 /**
- * Caching Layer for API Responses
- * Uses LRU Cache for in-memory caching of hot data
+ * Lớp bộ nhớ đệm (cache) cho phản hồi API
+ * Sử dụng LRU Cache để lưu trữ trong bộ nhớ cho dữ liệu truy cập nhiều
  * 
- * Cache keys should be descriptive: e.g., "products:page:1:limit:12:category:me"
+ * Khóa cache nên có ý nghĩa: ví dụ, "products:page:1:limit:12:category:me"
  */
 
 import { LRUCache } from 'lru-cache'
@@ -13,15 +13,15 @@ interface CacheOptions {
   ttl?: number
 }
 
-// Create LRU cache instance
+// Tạo instance LRU cache
 const cache = new LRUCache<string, any>({
-  max: 500, // Maximum number of entries
-  ttl: 5 * 60 * 1000, // Time to live: 5 minutes in milliseconds
-  updateAgeOnGet: true // Extend TTL when item is accessed
+  max: 500, // Số lượng mục tối đa
+  ttl: 5 * 60 * 1000, // Thời gian sống: 5 phút (millisecond)
+  updateAgeOnGet: true // Gia hạn TTL khi mục được truy cập
 })
 
 /**
- * Get cached value by key
+ * Lấy giá trị từ cache theo key
  */
 export function getCached<T = any>(key: string): T | undefined {
   try {
@@ -35,10 +35,10 @@ export function getCached<T = any>(key: string): T | undefined {
 }
 
 /**
- * Set cache value with optional custom TTL
- * @param key Cache key
- * @param value Value to cache
- * @param ttl Time to live in milliseconds (optional, defaults to 5 minutes)
+ * Ghi giá trị vào cache với TTL tùy chọn
+ * @param key Khóa cache
+ * @param value Giá trị cần lưu
+ * @param ttl Thời gian sống theo millisecond (tùy chọn, mặc định 5 phút)
  */
 export function setCached(key: string, value: any, ttl?: number): void {
   try {
@@ -50,7 +50,7 @@ export function setCached(key: string, value: any, ttl?: number): void {
 }
 
 /**
- * Delete cached value by key
+ * Xóa một mục cache theo key
  */
 export function deleteCached(key: string): void {
   try {
@@ -61,7 +61,7 @@ export function deleteCached(key: string): void {
 }
 
 /**
- * Clear all cache
+ * Xóa toàn bộ cache
  */
 export function clearCache(): void {
   try {
@@ -72,7 +72,7 @@ export function clearCache(): void {
 }
 
 /**
- * Check if key exists in cache
+ * Kiểm tra key có tồn tại trong cache hay không
  */
 export function hasCached(key: string): boolean {
   try {
@@ -84,7 +84,7 @@ export function hasCached(key: string): boolean {
 }
 
 /**
- * Get cache statistics
+ * Lấy thống kê cache
  */
 export function getCacheStats() {
   return {
@@ -95,7 +95,7 @@ export function getCacheStats() {
 }
 
 /**
- * Generate cache key for products list
+ * Tạo khóa cache cho danh sách sản phẩm
  */
 export function getProductsCacheKey(params: {
   page?: number
@@ -131,21 +131,21 @@ export function getProductsCacheKey(params: {
 }
 
 /**
- * Generate cache key for categories
+ * Tạo khóa cache cho danh mục
  */
 export function getCategoriesCacheKey(): string {
   return 'categories:active'
 }
 
 /**
- * Generate cache key for discount codes
+ * Tạo khóa cache cho mã giảm giá
  */
 export function getDiscountCacheKey(code?: string): string {
   return code ? `discount:code:${code.toUpperCase()}` : 'discount:all'
 }
 
 /**
- * Invalidate products cache (call after product updates)
+ * Vô hiệu hóa cache sản phẩm (gọi sau khi cập nhật sản phẩm)
  */
 export function invalidateProductsCache(): void {
   const keysToDelete: string[] = []
@@ -161,7 +161,7 @@ export function invalidateProductsCache(): void {
 }
 
 /**
- * Invalidate categories cache
+ * Vô hiệu hóa cache danh mục
  */
 export function invalidateCategoriesCache(): void {
   deleteCached(getCategoriesCacheKey())
@@ -169,7 +169,7 @@ export function invalidateCategoriesCache(): void {
 }
 
 /**
- * Invalidate discount cache
+ * Vô hiệu hóa cache mã giảm giá
  */
 export function invalidateDiscountCache(code?: string): void {
   if (code) {

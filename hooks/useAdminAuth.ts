@@ -16,8 +16,8 @@ interface AdminAuthState {
 }
 
 /**
- * Hook to verify admin authentication
- * Automatically redirects to home page if not admin
+ * Hook kiểm tra xác thực admin
+ * Tự động chuyển hướng về trang chủ nếu không phải admin
  */
 export function useAdminAuth(redirectIfNotAdmin = true) {
   const router = useRouter()
@@ -30,7 +30,7 @@ export function useAdminAuth(redirectIfNotAdmin = true) {
   useEffect(() => {
     const verifyAdmin = async () => {
       try {
-        // First check localStorage
+        // Kiểm tra localStorage trước
         const storedUser = getStoredUser()
         
         if (!storedUser) {
@@ -42,7 +42,7 @@ export function useAdminAuth(redirectIfNotAdmin = true) {
           return
         }
 
-        // Quick check from localStorage
+        // Kiểm tra nhanh từ localStorage
         if (!storedUser.isAdmin) {
           console.log("User is not admin (from localStorage)")
           if (redirectIfNotAdmin) {
@@ -52,7 +52,7 @@ export function useAdminAuth(redirectIfNotAdmin = true) {
           return
         }
 
-        // Verify with server
+        // Xác minh với máy chủ
         const response = await fetch('/api/auth/verify-admin', {
           headers: {
             'x-user-id': storedUser.id.toString()
@@ -91,7 +91,7 @@ export function useAdminAuth(redirectIfNotAdmin = true) {
 }
 
 /**
- * Simple hook to check if user is admin (without verification)
+ * Hook đơn giản để kiểm tra user có phải admin hay không (không xác minh)
  */
 export function useIsAdmin() {
   const [isAdmin, setIsAdmin] = useState(false)

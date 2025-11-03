@@ -1,19 +1,19 @@
 /**
- * Structured Logging with Winston
- * Provides production-ready logging with file and console transports
+ * Ghi log có cấu trúc với Winston
+ * Cung cấp ghi log sẵn sàng cho môi trường production với transport file và console
  */
 
 import winston from 'winston'
 import path from 'path'
 import fs from 'fs'
 
-// Ensure logs directory exists
+// Đảm bảo thư mục logs tồn tại
 const logsDir = path.join(process.cwd(), 'logs')
 if (!fs.existsSync(logsDir)) {
   fs.mkdirSync(logsDir, { recursive: true })
 }
 
-// Define log format
+// Định nghĩa định dạng log
 const logFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   winston.format.errors({ stack: true }),
@@ -21,7 +21,7 @@ const logFormat = winston.format.combine(
   winston.format.json()
 )
 
-// Console format for development
+// Định dạng console cho môi trường phát triển
 const consoleFormat = winston.format.combine(
   winston.format.colorize(),
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
@@ -35,26 +35,26 @@ const consoleFormat = winston.format.combine(
 )
 
 /**
- * Create Winston logger instance
+ * Tạo instance Winston logger
  */
 export const logger = winston.createLogger({
   level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
   format: logFormat,
   transports: [
-    // Error logs
+    // Log lỗi
     new winston.transports.File({
       filename: path.join(logsDir, 'error.log'),
       level: 'error',
       maxsize: 5242880, // 5MB
       maxFiles: 5,
     }),
-    // Combined logs
+    // Log tổng hợp
     new winston.transports.File({
       filename: path.join(logsDir, 'combined.log'),
       maxsize: 5242880, // 5MB
       maxFiles: 5,
     }),
-    // Console for development
+    // Console cho môi trường phát triển
     ...(process.env.NODE_ENV !== 'production'
       ? [
           new winston.transports.Console({
@@ -76,22 +76,22 @@ export const logger = winston.createLogger({
 })
 
 /**
- * Log levels:
- * - error: Error events (0)
- * - warn: Warning events (1)
- * - info: Informational events (2)
- * - http: HTTP requests (3)
- * - verbose: Verbose events (4)
- * - debug: Debug messages (5)
- * - silly: Silly events (6)
+ * Các mức log:
+ * - error: Sự kiện lỗi (0)
+ * - warn: Cảnh báo (1)
+ * - info: Thông tin (2)
+ * - http: Yêu cầu HTTP (3)
+ * - verbose: Chi tiết (4)
+ * - debug: Gỡ lỗi (5)
+ * - silly: Vặt vãnh (6)
  */
 
 /**
- * Helper functions for common logging patterns
+ * Hàm trợ giúp cho các mẫu ghi log phổ biến
  */
 export const loggerHelpers = {
   /**
-   * Log an error with context
+   * Ghi log lỗi kèm ngữ cảnh
    */
   logError(message: string, error: Error | any, context?: Record<string, any>) {
     logger.error(message, {
@@ -102,7 +102,7 @@ export const loggerHelpers = {
   },
 
   /**
-   * Log request information
+   * Ghi log thông tin request
    */
   logRequest(method: string, url: string, userId?: number, duration?: number) {
     logger.info('API Request', {
@@ -114,7 +114,7 @@ export const loggerHelpers = {
   },
 
   /**
-   * Log API error
+   * Ghi log lỗi API
    */
   logApiError(
     method: string,
@@ -133,7 +133,7 @@ export const loggerHelpers = {
   },
 
   /**
-   * Log cache operations
+   * Ghi log thao tác cache
    */
   logCache(operation: string, key: string, hit?: boolean, metadata?: Record<string, any>) {
     logger.debug('Cache Operation', {
@@ -145,7 +145,7 @@ export const loggerHelpers = {
   },
 
   /**
-   * Log database operations
+   * Ghi log thao tác cơ sở dữ liệu
    */
   logDatabase(operation: string, table: string, duration?: number) {
     logger.debug('Database Operation', {
@@ -156,7 +156,7 @@ export const loggerHelpers = {
   },
 
   /**
-   * Log authentication events
+   * Ghi log sự kiện xác thực (auth)
    */
   logAuth(event: string, userId?: number, success?: boolean) {
     logger.info('Auth Event', {
@@ -167,7 +167,7 @@ export const loggerHelpers = {
   },
 
   /**
-   * Log admin actions
+   * Ghi log hành động của admin
    */
   logAdmin(action: string, adminId: number, entity?: string, entityId?: number) {
     logger.info('Admin Action', {
@@ -179,7 +179,7 @@ export const loggerHelpers = {
   },
 
   /**
-   * Log performance metrics
+   * Ghi log chỉ số hiệu năng
    */
   logPerformance(metric: string, value: number, unit: string = 'ms') {
     logger.info('Performance', {
@@ -190,6 +190,6 @@ export const loggerHelpers = {
   },
 }
 
-// Export logger and helpers
+// Xuất logger và các hàm trợ giúp
 export default logger
 

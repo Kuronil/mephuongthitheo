@@ -72,7 +72,7 @@ export default function NewProductPage() {
     { key: "fiber", label: "Fiber (g)", value: "" }
   ])
 
-  // Auto-generate slug from name
+  // Tự động tạo slug từ tên
   const generateSlug = (name: string) => {
     return name.toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '')
@@ -137,13 +137,13 @@ export default function NewProductPage() {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Validate file type
+    // Kiểm tra định dạng tệp
     if (!file.type.startsWith('image/')) {
       toast.error('Vui lòng chọn file hình ảnh')
       return
     }
 
-    // Validate file size (max 5MB)
+    // Kiểm tra kích thước tệp (tối đa 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('Kích thước file không được vượt quá 5MB')
       return
@@ -186,13 +186,13 @@ export default function NewProductPage() {
     
     try {
       const uploadPromises = Array.from(files).map(async (file) => {
-        // Validate file type
+        // Kiểm tra định dạng tệp
         if (!file.type.startsWith('image/')) {
           toast.error(`${file.name} không phải là file hình ảnh`)
           return null
         }
 
-        // Validate file size (max 5MB)
+        // Kiểm tra kích thước tệp (tối đa 5MB)
         if (file.size > 5 * 1024 * 1024) {
           toast.error(`${file.name} vượt quá 5MB`)
           return null
@@ -249,7 +249,7 @@ export default function NewProductPage() {
     setLoading(true)
 
     try {
-      // Prepare nutrition data
+      // Chuẩn bị dữ liệu dinh dưỡng
       const nutritionData = nutritionFields.reduce((acc, field) => {
         if (field.value) {
           acc[field.key] = parseFloat(field.value) || field.value
@@ -289,7 +289,7 @@ export default function NewProductPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
+        {/* Tiêu đề */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
             <Link
@@ -305,13 +305,13 @@ export default function NewProductPage() {
           </div>
         </div>
 
-        {/* Form */}
+        {/* Biểu mẫu */}
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Thông tin cơ bản</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Product Name */}
+              {/* Tên sản phẩm */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Tên sản phẩm *
@@ -340,7 +340,7 @@ export default function NewProductPage() {
                 />
               </div>
 
-              {/* Description */}
+              {/* Mô tả */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Mô tả sản phẩm
@@ -354,7 +354,7 @@ export default function NewProductPage() {
                 />
               </div>
 
-              {/* Main Image Upload */}
+              {/* Tải ảnh chính */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Ảnh chính sản phẩm
@@ -409,7 +409,7 @@ export default function NewProductPage() {
                 </div>
               </div>
 
-              {/* Additional Images Upload */}
+              {/* Tải ảnh phụ */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Ảnh phụ
@@ -467,7 +467,7 @@ export default function NewProductPage() {
                 </div>
               </div>
 
-              {/* Price */}
+              {/* Giá bán */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Giá bán *
@@ -482,7 +482,7 @@ export default function NewProductPage() {
                 />
               </div>
 
-              {/* Original Price */}
+              {/* Giá gốc */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Giá gốc
@@ -496,7 +496,7 @@ export default function NewProductPage() {
                 />
               </div>
 
-              {/* Category */}
+              {/* Danh mục */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Danh mục
@@ -515,7 +515,7 @@ export default function NewProductPage() {
                 </select>
               </div>
 
-              {/* Subcategory */}
+              {/* Danh mục con */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Danh mục con
@@ -529,7 +529,7 @@ export default function NewProductPage() {
                 />
               </div>
 
-              {/* Brand */}
+              {/* Thương hiệu */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Thương hiệu
@@ -543,7 +543,7 @@ export default function NewProductPage() {
                 />
               </div>
 
-              {/* Weight */}
+              {/* Trọng lượng */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Trọng lượng
@@ -571,12 +571,12 @@ export default function NewProductPage() {
             </div>
           </div>
 
-          {/* Inventory */}
+          {/* Tồn kho */}
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Quản lý tồn kho</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Stock */}
+              {/* Số lượng tồn */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Số lượng tồn kho
@@ -590,7 +590,7 @@ export default function NewProductPage() {
                 />
               </div>
 
-              {/* Min Stock */}
+              {/* Mức tồn tối thiểu */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Tồn kho tối thiểu
@@ -604,7 +604,7 @@ export default function NewProductPage() {
                 />
               </div>
 
-              {/* Storage */}
+              {/* Bảo quản */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Hướng dẫn bảo quản
@@ -618,7 +618,7 @@ export default function NewProductPage() {
                 />
               </div>
 
-              {/* Expiry */}
+              {/* Hạn sử dụng */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Hạn sử dụng (ngày)
@@ -634,7 +634,7 @@ export default function NewProductPage() {
             </div>
           </div>
 
-          {/* Tags */}
+          {/* Thẻ (tags) */}
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Tags</h2>
             
@@ -679,7 +679,7 @@ export default function NewProductPage() {
             </div>
           </div>
 
-          {/* Nutrition */}
+          {/* Dinh dưỡng */}
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Thông tin dinh dưỡng</h2>
             
@@ -701,7 +701,7 @@ export default function NewProductPage() {
             </div>
           </div>
 
-          {/* Settings */}
+          {/* Cài đặt */}
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Cài đặt</h2>
             
@@ -738,7 +738,7 @@ export default function NewProductPage() {
             </div>
           </div>
 
-          {/* Submit */}
+          {/* Gửi */}
           <div className="flex justify-end gap-4">
             <Link
               href="/admin/products"

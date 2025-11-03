@@ -47,7 +47,7 @@ export default function AdvancedSearch({ onSearch, onReset, loading = false }: A
   const [subcategories, setSubcategories] = useState<Array<{name: string, slug: string}>>([])
   const [popularSearches, setPopularSearches] = useState<string[]>([])
 
-  // Fetch categories and popular searches
+  // Lấy danh mục và từ khóa tìm kiếm phổ biến
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -76,8 +76,8 @@ export default function AdvancedSearch({ onSearch, onReset, loading = false }: A
     fetchPopularSearches()
   }, [])
 
-  // Subcategories are now loaded from API along with categories
-  // No need for a separate useEffect to update them
+  // Danh mục con hiện được tải từ API cùng với danh mục
+  // Không cần useEffect riêng để cập nhật nữa
 
   const handleFilterChange = (key: keyof SearchFilters, value: any) => {
     setFilters(prev => ({
@@ -123,7 +123,7 @@ export default function AdvancedSearch({ onSearch, onReset, loading = false }: A
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      {/* Basic Search */}
+      {/* Tìm kiếm cơ bản */}
       <div className="flex gap-4 mb-4">
         <div className="flex-1">
           <SearchSuggestions 
@@ -141,7 +141,7 @@ export default function AdvancedSearch({ onSearch, onReset, loading = false }: A
         </button>
       </div>
 
-      {/* Popular Searches */}
+      {/* Tìm kiếm phổ biến */}
       {popularSearches.length > 0 && !showAdvanced && (
         <div className="mb-4">
           <div className="flex items-center gap-2 mb-2">
@@ -162,7 +162,7 @@ export default function AdvancedSearch({ onSearch, onReset, loading = false }: A
         </div>
       )}
 
-      {/* Active Filters */}
+      {/* Bộ lọc đang hoạt động */}
       {hasActiveFilters() && (
         <div className="mb-4">
           <div className="flex items-center gap-2 flex-wrap">
@@ -217,11 +217,11 @@ export default function AdvancedSearch({ onSearch, onReset, loading = false }: A
         </div>
       )}
 
-      {/* Advanced Filters */}
+      {/* Bộ lọc nâng cao */}
       {showAdvanced && (
         <div className="border-t pt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Category */}
+            {/* Danh mục */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Danh mục
@@ -240,7 +240,7 @@ export default function AdvancedSearch({ onSearch, onReset, loading = false }: A
               </select>
             </div>
 
-            {/* Subcategory */}
+            {/* Danh mục con */}
             {subcategories.length > 0 && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -261,7 +261,7 @@ export default function AdvancedSearch({ onSearch, onReset, loading = false }: A
               </div>
             )}
 
-            {/* Price Range */}
+            {/* Khoảng giá */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Khoảng giá
@@ -284,7 +284,7 @@ export default function AdvancedSearch({ onSearch, onReset, loading = false }: A
               </div>
             </div>
 
-            {/* Rating Range */}
+            {/* Khoảng đánh giá */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Đánh giá
@@ -316,7 +316,7 @@ export default function AdvancedSearch({ onSearch, onReset, loading = false }: A
               </div>
             </div>
 
-            {/* Sort */}
+            {/* Sắp xếp */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Sắp xếp
@@ -342,7 +342,7 @@ export default function AdvancedSearch({ onSearch, onReset, loading = false }: A
             </div>
           </div>
 
-          {/* Checkboxes */}
+          {/* Tùy chọn chọn (checkbox) */}
           <div className="mt-6">
             <div className="flex flex-wrap gap-6">
               <label className="flex items-center">
@@ -375,7 +375,7 @@ export default function AdvancedSearch({ onSearch, onReset, loading = false }: A
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Nút thao tác */}
           <div className="mt-6 flex justify-end gap-3">
             <button
               onClick={handleReset}
