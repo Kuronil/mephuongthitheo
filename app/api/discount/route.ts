@@ -2,12 +2,20 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { authenticateUser } from "@/lib/auth-middleware"
 import { ErrorResponses, ErrorCode, createErrorResponse } from "@/lib/errors"
+import { getCached, setCached, getDiscountCacheKey } from "@/lib/cache"
 
 // GET /api/discount - Get all active discount codes
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const code = searchParams.get('code')
+
+    // Check cache first
+    const cacheKey = getDiscountCacheKey(code || undefined)
+    const cachedResult = getCached(cacheKey)
+    if (cachedResult) {
+      return NextResponse.json(cachedResult)
+    }
 
     if (code) {
       // Get specific discount code
@@ -52,10 +60,15 @@ export async function GET(request: NextRequest) {
         )
       }
 
-      return NextResponse.json({
+      const responseData = {
         success: true,
         discountCode
-      })
+      }
+
+      // Cache the result
+      setCached(cacheKey, responseData)
+
+      return NextResponse.json(responseData)
     } else {
       // Get all active discount codes
       const discountCodes = await prisma.discountCode.findMany({
@@ -63,10 +76,15 @@ export async function GET(request: NextRequest) {
         orderBy: { createdAt: 'desc' }
       })
 
-      return NextResponse.json({
+      const responseData = {
         success: true,
         discountCodes
-      })
+      }
+
+      // Cache the result
+      setCached(cacheKey, responseData)
+
+      return NextResponse.json(responseData)
     }
   } catch (error: any) {
     console.error("Get discount error:", error)

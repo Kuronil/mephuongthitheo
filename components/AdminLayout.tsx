@@ -7,8 +7,8 @@ interface AdminLayoutProps {
 }
 
 /**
- * Admin Layout wrapper that verifies admin authentication
- * Automatically redirects non-admin users to home page
+ * Giao diện xác thực admin
+ * Tự động chuyển hướng người dùng không phải admin về trang chủ
  */
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const { isAdmin, isLoading } = useAdminAuth()

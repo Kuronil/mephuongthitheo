@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { invalidateProductsCache, invalidateCategoriesCache } from "@/lib/cache"
 
 // GET /api/products/[id] - Lấy chi tiết sản phẩm (có thể dùng ID hoặc slug)
 export async function GET(
@@ -322,6 +323,10 @@ export async function PUT(
       }
     })
 
+    // Invalidate cache after update
+    invalidateProductsCache()
+    invalidateCategoriesCache()
+
     return NextResponse.json({
       success: true,
       data: updatedProduct,
@@ -387,6 +392,10 @@ export async function DELETE(
         data: { isActive: false }
       })
 
+      // Invalidate cache after soft delete
+      invalidateProductsCache()
+      invalidateCategoriesCache()
+
       return NextResponse.json({
         success: true,
         message: "Sản phẩm đã được vô hiệu hóa (có đơn hàng liên quan)"
@@ -397,6 +406,10 @@ export async function DELETE(
     await prisma.product.delete({
       where: { id: productId }
     })
+
+    // Invalidate cache after hard delete
+    invalidateProductsCache()
+    invalidateCategoriesCache()
 
     return NextResponse.json({
       success: true,

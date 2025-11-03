@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { 
+  getCached, 
+  setCached, 
+  getProductsCacheKey,
+  invalidateProductsCache 
+} from "@/lib/cache"
 
 // Vietnamese utils inline to avoid import issues
 const vietnameseUtils = {
@@ -58,6 +64,27 @@ export async function GET(request: NextRequest) {
     const isFlashSale = searchParams.get('isFlashSale')
     const inStock = searchParams.get('inStock') === 'true'
     const lowStock = searchParams.get('lowStock') === 'true'
+
+    // Check cache first
+    const cacheKey = getProductsCacheKey({
+      page,
+      limit,
+      search,
+      category,
+      subcategory,
+      minPrice,
+      maxPrice,
+      sortBy,
+      sortOrder,
+      isFeatured,
+      isFlashSale,
+      inStock
+    })
+    
+    const cachedResult = getCached(cacheKey)
+    if (cachedResult) {
+      return NextResponse.json(cachedResult)
+    }
 
     // Build where clause
     const where: any = {
@@ -179,7 +206,7 @@ export async function GET(request: NextRequest) {
 
     const totalPages = Math.ceil(totalCount / limit)
 
-    return NextResponse.json({
+    const responseData = {
       success: true,
       data: {
         products: productsWithRatings,
@@ -192,7 +219,12 @@ export async function GET(request: NextRequest) {
           hasPrev: page > 1
         }
       }
-    })
+    }
+
+    // Cache the result
+    setCached(cacheKey, responseData)
+
+    return NextResponse.json(responseData)
 
   } catch (error: any) {
     console.error("Get products error:", error)
@@ -295,6 +327,9 @@ export async function POST(request: NextRequest) {
         expiry
       }
     })
+
+    // Invalidate products cache after creation
+    invalidateProductsCache()
 
     return NextResponse.json({
       success: true,

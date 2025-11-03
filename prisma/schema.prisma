@@ -1,10 +1,9 @@
-// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -22,18 +21,18 @@ model User {
   resetPasswordToken       String?
   resetPasswordTokenExpiry DateTime?
   createdAt                DateTime             @default(now())
-  orders                   Order[]
-  wishlist                 WishlistItem[]
+  loyaltyPoints            Int                  @default(0)
+  loyaltyTier              String               @default("BRONZE")
   cart                     CartItem[]
+  orders                   Order[]
   statusLogs               OrderStatusLog[]
   reviews                  ProductReview[]
-  loyaltyPoints            Int                  @default(0)
-  loyaltyTier              String               @default("BRONZE") // BRONZE, SILVER, GOLD, PLATINUM
+  wishlist                 WishlistItem[]
+  adminLogs                AdminLog[]
   loyaltyTransactions      LoyaltyTransaction[]
   notifications            Notification[]
-  adminLogs                AdminLog[]
-  productHistory           ProductHistory[]
   orderHistory             OrderHistory[]
+  productHistory           ProductHistory[]
 
   @@index([email])
   @@index([createdAt])
@@ -41,23 +40,15 @@ model User {
 }
 
 model Order {
-  id                  Int                  @id @default(autoincrement())
-  userId              Int?
-  total               Float
-  name                String
-  phone               String
-  address             String
-  note                String?
-  paymentMethod       String
-  status              String
-  discountCodeId      Int? // Discount code used in this order
-  items               OrderItem[]
-  statusLogs          OrderStatusLog[]
-  loyaltyTransactions LoyaltyTransaction[]
-  history             OrderHistory[]
-  discountCode        DiscountCode?       @relation(fields: [discountCodeId], references: [id])
-
-  // VNPay payment fields
+  id                   Int                  @id @default(autoincrement())
+  userId               Int?
+  total                Float
+  name                 String
+  phone                String
+  address              String
+  note                 String?
+  paymentMethod        String
+  status               String
   vnpayTransactionNo   String?
   vnpayBankCode        String?
   vnpayCardType        String?
@@ -65,17 +56,19 @@ model Order {
   vnpayResponseCode    String?
   vnpayResponseMessage String?
   paidAt               DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User?    @relation(fields: [userId], references: [id])
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  user                 User?                @relation(fields: [userId], references: [id])
+  items                OrderItem[]
+  statusLogs           OrderStatusLog[]
+  loyaltyTransactions  LoyaltyTransaction[]
+  history              OrderHistory[]
 
   @@index([userId])
   @@index([status])
   @@index([createdAt])
   @@index([paymentMethod])
   @@index([status, createdAt])
-  @@index([discountCodeId])
 }
 
 model OrderItem {
@@ -105,8 +98,8 @@ model WishlistItem {
   rating        Float?
   reviews       Int?
   createdAt     DateTime @default(now())
-  user          User     @relation(fields: [userId], references: [id])
   product       Product  @relation(fields: [productId], references: [id])
+  user          User     @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([productId])
@@ -125,8 +118,8 @@ model CartItem {
   discount      Int?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  user          User     @relation(fields: [userId], references: [id])
   product       Product  @relation(fields: [productId], references: [id])
+  user          User     @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([productId])
@@ -138,18 +131,17 @@ model DiscountCode {
   code         String    @unique
   name         String
   description  String?
-  discount     Int // Phần trăm giảm giá
-  minAmount    Float? // Số tiền tối thiểu để áp dụng
-  maxDiscount  Float? // Số tiền giảm tối đa
+  discount     Int
+  minAmount    Float?
+  maxDiscount  Float?
   freeShipping Boolean   @default(false)
   isActive     Boolean   @default(true)
   validFrom    DateTime?
   validTo      DateTime?
-  usageLimit   Int? // Giới hạn số lần sử dụng
+  usageLimit   Int?
   usedCount    Int       @default(0)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
-  orders       Order[]   // Orders using this discount code
 
   @@index([code])
   @@index([isActive])
@@ -163,8 +155,8 @@ model OrderStatusLog {
   reason    String?
   changedBy Int
   changedAt DateTime @default(now())
-  order     Order    @relation(fields: [orderId], references: [id])
   user      User     @relation(fields: [changedBy], references: [id])
+  order     Order    @relation(fields: [orderId], references: [id])
 }
 
 model Product {
@@ -176,29 +168,29 @@ model Product {
   originalPrice Float?
   discount      Int?
   image         String?
-  images        String? // JSON array of image URLs
+  images        String?
   category      String?
   subcategory   String?
   brand         String?
-  weight        Float? // Weight in grams
-  unit          String? // kg, g, piece, etc.
+  weight        Float?
+  unit          String?
   stock         Int              @default(0)
-  minStock      Int              @default(5) // Alert when stock below this
+  minStock      Int              @default(5)
   isActive      Boolean          @default(true)
   isFeatured    Boolean          @default(false)
   isFlashSale   Boolean          @default(false)
   rating        Float            @default(0)
   reviewCount   Int              @default(0)
-  tags          String? // JSON array of tags
-  nutrition     String? // JSON nutrition facts
-  storage       String? // Storage instructions
-  expiry        Int? // Days until expiry
+  tags          String?
+  nutrition     String?
+  storage       String?
+  expiry        Int?
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
-  orderItems    OrderItem[]
-  wishlistItems WishlistItem[]
   cartItems     CartItem[]
+  orderItems    OrderItem[]
   reviews       ProductReview[]
+  wishlistItems WishlistItem[]
   history       ProductHistory[]
 
   @@index([slug])
@@ -214,12 +206,12 @@ model ProductReview {
   id         Int      @id @default(autoincrement())
   productId  Int
   userId     Int
-  rating     Int // 1-5 stars
+  rating     Int
   title      String?
   comment    String?
-  images     String? // JSON array of review images
+  images     String?
   isVerified Boolean  @default(false)
-  helpful    Int      @default(0) // Number of helpful votes
+  helpful    Int      @default(0)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   product    Product  @relation(fields: [productId], references: [id])
@@ -234,14 +226,13 @@ model LoyaltyTransaction {
   id          Int       @id @default(autoincrement())
   userId      Int
   orderId     Int?
-  type        String // EARN, REDEEM, EXPIRED, BONUS
-  points      Int // Positive for earn, negative for redeem
+  type        String
+  points      Int
   description String
   createdAt   DateTime  @default(now())
   expiresAt   DateTime?
-
-  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  order Order? @relation(fields: [orderId], references: [id])
+  order       Order?    @relation(fields: [orderId], references: [id])
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("loyalty_transactions")
 }
@@ -251,12 +242,11 @@ model Notification {
   userId    Int?
   title     String
   message   String
-  type      String // ORDER, PROMOTION, SYSTEM, LOYALTY
+  type      String
   isRead    Boolean  @default(false)
-  data      String? // JSON data for additional info
+  data      String?
   createdAt DateTime @default(now())
-
-  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([userId, isRead])
@@ -267,17 +257,16 @@ model Notification {
 model AdminLog {
   id          Int      @id @default(autoincrement())
   adminId     Int
-  action      String // CREATE, UPDATE, DELETE, EXPORT, etc.
-  entity      String // PRODUCT, ORDER, USER, etc.
+  action      String
+  entity      String
   entityId    Int?
   description String
-  oldData     String? // JSON snapshot of old data
-  newData     String? // JSON snapshot of new data
+  oldData     String?
+  newData     String?
   ipAddress   String?
   userAgent   String?
   createdAt   DateTime @default(now())
-
-  admin User @relation(fields: [adminId], references: [id])
+  admin       User     @relation(fields: [adminId], references: [id])
 
   @@map("admin_logs")
 }
@@ -285,15 +274,14 @@ model AdminLog {
 model ProductHistory {
   id        Int      @id @default(autoincrement())
   productId Int
-  changedBy Int // Admin user ID
-  field     String // Field name that changed
-  oldValue  String? // Old value (JSON if complex)
-  newValue  String? // New value (JSON if complex)
-  reason    String? // Reason for change
+  changedBy Int
+  field     String
+  oldValue  String?
+  newValue  String?
+  reason    String?
   createdAt DateTime @default(now())
-
-  product Product @relation(fields: [productId], references: [id])
-  changer User    @relation(fields: [changedBy], references: [id])
+  changer   User     @relation(fields: [changedBy], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
 
   @@map("product_history")
 }
@@ -301,15 +289,14 @@ model ProductHistory {
 model OrderHistory {
   id        Int      @id @default(autoincrement())
   orderId   Int
-  changedBy Int // Admin user ID
-  field     String // Field name that changed
-  oldValue  String? // Old value
-  newValue  String? // New value
-  reason    String? // Reason for change
+  changedBy Int
+  field     String
+  oldValue  String?
+  newValue  String?
+  reason    String?
   createdAt DateTime @default(now())
-
-  order   Order @relation(fields: [orderId], references: [id])
-  changer User  @relation(fields: [changedBy], references: [id])
+  changer   User     @relation(fields: [changedBy], references: [id])
+  order     Order    @relation(fields: [orderId], references: [id])
 
   @@map("order_history")
 }

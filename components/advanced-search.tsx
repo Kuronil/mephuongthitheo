@@ -63,7 +63,6 @@ export default function AdvancedSearch({ onSearch, onReset, loading = false }: A
     }
     
     const fetchPopularSearches = () => {
-      // Mock popular searches - in real app, this would come from analytics
       setPopularSearches([
         "thịt heo nạc",
         "thịt ba chỉ",

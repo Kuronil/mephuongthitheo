@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { ArrowLeft, Save, Upload, X } from "lucide-react"
+import { useState, useRef } from "react"
+import { ArrowLeft, Save, Upload, X, Plus, Image as ImageIcon } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
@@ -60,6 +60,10 @@ export default function NewProductPage() {
   })
 
   const [newTag, setNewTag] = useState("")
+  const [uploadingMainImage, setUploadingMainImage] = useState(false)
+  const [uploadingAdditionalImages, setUploadingAdditionalImages] = useState(false)
+  const mainImageInputRef = useRef<HTMLInputElement>(null)
+  const additionalImagesInputRef = useRef<HTMLInputElement>(null)
   const [nutritionFields, setNutritionFields] = useState([
     { key: "calories", label: "Calories", value: "" },
     { key: "protein", label: "Protein (g)", value: "" },
@@ -127,6 +131,111 @@ export default function NewProductPage() {
     const updatedFields = [...nutritionFields]
     updatedFields[index].value = value
     setNutritionFields(updatedFields)
+  }
+
+  const handleMainImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Vui lòng chọn file hình ảnh')
+      return
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Kích thước file không được vượt quá 5MB')
+      return
+    }
+
+    setUploadingMainImage(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setFormData(prev => ({ ...prev, image: data.url }))
+        toast.success('Tải ảnh chính thành công!')
+      } else {
+        toast.error(data.error || 'Lỗi khi tải ảnh lên')
+      }
+    } catch (error) {
+      console.error('Upload error:', error)
+      toast.error('Lỗi khi tải ảnh lên')
+    } finally {
+      setUploadingMainImage(false)
+      if (mainImageInputRef.current) {
+        mainImageInputRef.current.value = ''
+      }
+    }
+  }
+
+  const handleAdditionalImagesUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    setUploadingAdditionalImages(true)
+    
+    try {
+      const uploadPromises = Array.from(files).map(async (file) => {
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          toast.error(`${file.name} không phải là file hình ảnh`)
+          return null
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error(`${file.name} vượt quá 5MB`)
+          return null
+        }
+
+        const formData = new FormData()
+        formData.append('file', file)
+
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        })
+
+        const data = await response.json()
+        return data.success ? data.url : null
+      })
+
+      const urls = await Promise.all(uploadPromises)
+      const validUrls = urls.filter((url): url is string => url !== null)
+
+      if (validUrls.length > 0) {
+        setFormData(prev => ({
+          ...prev,
+          images: [...prev.images, ...validUrls]
+        }))
+        toast.success(`Đã tải ${validUrls.length} ảnh phụ thành công!`)
+      }
+    } catch (error) {
+      console.error('Upload error:', error)
+      toast.error('Lỗi khi tải ảnh lên')
+    } finally {
+      setUploadingAdditionalImages(false)
+      if (additionalImagesInputRef.current) {
+        additionalImagesInputRef.current.value = ''
+      }
+    }
+  }
+
+  const removeAdditionalImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -243,6 +352,119 @@ export default function NewProductPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Mô tả chi tiết về sản phẩm"
                 />
+              </div>
+
+              {/* Main Image Upload */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Ảnh chính sản phẩm
+                </label>
+                <div className="space-y-4">
+                  {formData.image ? (
+                    <div className="relative group">
+                      <img 
+                        src={formData.image} 
+                        alt="Main product" 
+                        className="w-48 h-48 object-cover rounded-lg border border-gray-300"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, image: "" }))}
+                        className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition">
+                      <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-sm text-gray-600 mb-2">Chưa có ảnh chính</p>
+                      <button
+                        type="button"
+                        onClick={() => mainImageInputRef.current?.click()}
+                        disabled={uploadingMainImage}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 flex items-center gap-2 mx-auto"
+                      >
+                        {uploadingMainImage ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            Đang tải...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-4 h-4" />
+                            Tải ảnh lên
+                          </>
+                        )}
+                      </button>
+                      <input
+                        ref={mainImageInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleMainImageUpload}
+                        className="hidden"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Additional Images Upload */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Ảnh phụ
+                </label>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => additionalImagesInputRef.current?.click()}
+                      disabled={uploadingAdditionalImages}
+                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition disabled:opacity-50 flex items-center gap-2"
+                    >
+                      {uploadingAdditionalImages ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-700"></div>
+                          Đang tải...
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-4 h-4" />
+                          Thêm ảnh phụ
+                        </>
+                      )}
+                    </button>
+                    <input
+                      ref={additionalImagesInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleAdditionalImagesUpload}
+                      className="hidden"
+                    />
+                    <span className="text-sm text-gray-500">Có thể chọn nhiều ảnh cùng lúc</span>
+                  </div>
+                  {formData.images.length > 0 && (
+                    <div className="flex flex-wrap gap-4">
+                      {formData.images.map((image, index) => (
+                        <div key={index} className="relative group">
+                          <img 
+                            src={image} 
+                            alt={`Additional ${index + 1}`} 
+                            className="w-32 h-32 object-cover rounded-lg border border-gray-300"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeAdditionalImage(index)}
+                            className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Price */}

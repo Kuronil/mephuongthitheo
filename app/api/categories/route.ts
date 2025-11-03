@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { getCached, setCached, getCategoriesCacheKey } from "@/lib/cache"
 
 // GET /api/categories - Lấy danh sách categories từ products
 export async function GET(request: NextRequest) {
   try {
+    // Check cache first
+    const cacheKey = getCategoriesCacheKey()
+    const cachedResult = getCached(cacheKey)
+    if (cachedResult) {
+      return NextResponse.json(cachedResult)
+    }
+
     // Get unique categories from products
     const products = await prisma.product.findMany({
       where: { isActive: true },
@@ -37,13 +45,18 @@ export async function GET(request: NextRequest) {
       slug: subcat.toLowerCase().replace(/\s+/g, '-')
     }))
 
-    return NextResponse.json({
+    const responseData = {
       success: true,
       data: {
         categories: categories.sort((a, b) => a.name.localeCompare(b.name)),
         subcategories: subcategories.sort((a, b) => a.name.localeCompare(b.name))
       }
-    })
+    }
+
+    // Cache the result
+    setCached(cacheKey, responseData)
+
+    return NextResponse.json(responseData)
 
   } catch (error) {
     console.error("Get categories error:", error)
