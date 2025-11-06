@@ -42,11 +42,7 @@ export default function PaymentPage() {
 
   const fetchOrder = async (orderId: string) => {
     try {
-      const response = await fetch(`/api/account/orders/${orderId}`, {
-        headers: {
-          'x-user-id': user?.id?.toString() || ''
-        }
-      })
+      const response = await fetch(`/api/account/orders/${orderId}`)
       if (!response.ok) {
         // Hiển thị thông báo theo từng mã lỗi phổ biến
         if (response.status === 400) {
@@ -80,8 +76,7 @@ export default function PaymentPage() {
       const response = await fetch('/api/vnpay/create-payment', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'x-user-id': user?.id?.toString() || ''
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           orderId: order.id

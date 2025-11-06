@@ -24,40 +24,25 @@ export async function GET(request: NextRequest) {
       })
 
       if (!discountCode) {
-        return NextResponse.json(
-          { error: "Discount code not found" },
-          { status: 404 }
-        )
+        return ErrorResponses.notFound('Discount code')
       }
 
       // Check if code is active and valid
       const now = new Date()
       if (!discountCode.isActive) {
-        return NextResponse.json(
-          { error: "Discount code is not active" },
-          { status: 400 }
-        )
+        return ErrorResponses.validationError('Discount code is not active')
       }
 
       if (discountCode.validFrom && now < discountCode.validFrom) {
-        return NextResponse.json(
-          { error: "Discount code is not yet valid" },
-          { status: 400 }
-        )
+        return ErrorResponses.validationError('Discount code is not yet valid')
       }
 
       if (discountCode.validTo && now > discountCode.validTo) {
-        return NextResponse.json(
-          { error: "Discount code has expired" },
-          { status: 400 }
-        )
+        return ErrorResponses.validationError('Discount code has expired')
       }
 
       if (discountCode.usageLimit && discountCode.usedCount >= discountCode.usageLimit) {
-        return NextResponse.json(
-          { error: "Discount code usage limit reached" },
-          { status: 400 }
-        )
+        return ErrorResponses.validationError('Discount code usage limit reached')
       }
 
       const responseData = {
@@ -134,39 +119,24 @@ export async function POST(request: NextRequest) {
     // Check if code is active and valid
     const now = new Date()
     if (!discountCode.isActive) {
-      return NextResponse.json(
-        { error: "Discount code is not active" },
-        { status: 400 }
-      )
+      return ErrorResponses.validationError('Discount code is not active')
     }
 
     if (discountCode.validFrom && now < discountCode.validFrom) {
-      return NextResponse.json(
-        { error: "Discount code is not yet valid" },
-        { status: 400 }
-      )
+      return ErrorResponses.validationError('Discount code is not yet valid')
     }
 
     if (discountCode.validTo && now > discountCode.validTo) {
-      return NextResponse.json(
-        { error: "Discount code has expired" },
-        { status: 400 }
-      )
+      return ErrorResponses.validationError('Discount code has expired')
     }
 
     if (discountCode.usageLimit && discountCode.usedCount >= discountCode.usageLimit) {
-      return NextResponse.json(
-        { error: "Discount code usage limit reached" },
-        { status: 400 }
-      )
+      return ErrorResponses.validationError('Discount code usage limit reached')
     }
 
     // Check minimum amount requirement
     if (discountCode.minAmount && subtotal < discountCode.minAmount) {
-      return NextResponse.json(
-        { error: `Minimum order amount is ${discountCode.minAmount.toLocaleString()}đ` },
-        { status: 400 }
-      )
+      return ErrorResponses.validationError(`Minimum order amount is ${discountCode.minAmount.toLocaleString()}đ`)
     }
 
     // Calculate discount amount

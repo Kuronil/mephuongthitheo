@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import ClientProviders from '@/components/client-providers'
@@ -37,6 +37,9 @@ export const metadata: Metadata = {
       { url: '/mephuong.png', width: 1200, height: 630, alt: 'Thịt heo Mẹ Phương' },
     ],
   },
+}
+
+export const viewport: Viewport = {
   themeColor: '#f97316',
 }
 

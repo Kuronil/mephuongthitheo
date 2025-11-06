@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
 
-# Update this to your production domain
-Sitemap: https://example.com/sitemap.xml
+# Point to sitemap relatively to avoid wrong domain in non-prod
+Sitemap: /sitemap.xml
 
 

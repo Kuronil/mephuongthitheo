@@ -10,7 +10,7 @@ export default function Home() {
     <main className="min-h-screen bg-white">
       <Header />
       <HeroBanner />
-      
+   
       {/* Quick Search Section */}
       <div className="py-12 bg-linear-to-br from-orange-50 to-orange-100">
         <div className="max-w-4xl mx-auto px-4">
