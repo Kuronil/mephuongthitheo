@@ -20,7 +20,9 @@ import {
   CheckCircle,
   XCircle,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ShieldCheck,
+  User as UserIcon
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -515,6 +517,7 @@ function AdminUsersContent() {
                     <TableHead>Cấp độ thành viên</TableHead>
                     <TableHead>Đơn hàng</TableHead>
                     <TableHead>Tổng chi tiêu</TableHead>
+                    <TableHead>Vai trò</TableHead>
                     <TableHead>Trạng thái</TableHead>
                     <TableHead>Thao tác</TableHead>
                   </TableRow>
@@ -522,7 +525,7 @@ function AdminUsersContent() {
                 <TableBody>
                   {loading ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8">
+                      <TableCell colSpan={8} className="text-center py-8">
                         <div className="flex items-center justify-center">
                           <div className="w-6 h-6 border-2 border-gray-300 border-b-transparent rounded-full animate-spin mr-2"></div>
                           Đang tải...
@@ -531,7 +534,7 @@ function AdminUsersContent() {
                     </TableRow>
                   ) : users.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8">
+                      <TableCell colSpan={8} className="text-center py-8">
                         <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                         <p className="text-gray-500">Không tìm thấy người dùng nào</p>
                       </TableCell>
@@ -581,6 +584,21 @@ function AdminUsersContent() {
                         </TableCell>
                         <TableCell>
                           <p className="font-medium">{user.totalSpent.toLocaleString()}₫</p>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            {user.isAdmin ? (
+                              <Badge className="bg-purple-100 text-purple-800 flex items-center gap-1">
+                                <ShieldCheck className="w-3 h-3" />
+                                Admin
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="flex items-center gap-1">
+                                <UserIcon className="w-3 h-3" />
+                                Người dùng
+                              </Badge>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
@@ -727,6 +745,22 @@ function AdminUsersContent() {
                   <label className="text-sm font-medium text-gray-600">Cấp độ thành viên</label>
                   <div className="mt-1">
                     {getTierBadge(selectedUser.loyaltyTier)}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Vai trò</label>
+                  <div className="mt-1">
+                    {selectedUser.isAdmin ? (
+                      <Badge className="bg-purple-100 text-purple-800 flex items-center gap-1">
+                        <ShieldCheck className="w-3 h-3" />
+                        Admin
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="flex items-center gap-1">
+                        <UserIcon className="w-3 h-3" />
+                        Người dùng
+                      </Badge>
+                    )}
                   </div>
                 </div>
               </div>
