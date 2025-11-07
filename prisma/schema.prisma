@@ -300,3 +300,9 @@ model OrderHistory {
 
   @@map("order_history")
 }
+
+model playing_with_neon {
+  id    Int    @id @default(autoincrement())
+  name  String
+  value Float? @db.Real
+}
