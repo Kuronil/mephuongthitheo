@@ -60,9 +60,10 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get('sortBy') || 'createdAt'
     const sortOrder = searchParams.get('sortOrder') || 'desc'
     const isActive = searchParams.get('isActive') !== 'false'
-    const isFeatured = searchParams.get('isFeatured')
-    const isFlashSale = searchParams.get('isFlashSale')
-    const inStock = searchParams.get('inStock') === 'true'
+    const isFeatured = searchParams.get('isFeatured') ?? undefined
+    const isFlashSale = searchParams.get('isFlashSale') ?? undefined
+    const inStockParam = searchParams.get('inStock')
+    const inStock = inStockParam === 'true'
     const lowStock = searchParams.get('lowStock') === 'true'
 
     // Check cache first
@@ -78,7 +79,7 @@ export async function GET(request: NextRequest) {
       sortOrder,
       isFeatured,
       isFlashSale,
-      inStock
+      inStock: inStockParam ?? undefined
     })
     
     const cachedResult = getCached(cacheKey)
