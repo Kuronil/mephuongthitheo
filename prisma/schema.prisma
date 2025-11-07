@@ -49,6 +49,7 @@ model Order {
   note                 String?
   paymentMethod        String
   status               String
+  discountCodeId       Int?
   vnpayTransactionNo   String?
   vnpayBankCode        String?
   vnpayCardType        String?
@@ -59,12 +60,14 @@ model Order {
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @updatedAt
   user                 User?                @relation(fields: [userId], references: [id])
+  discountCode         DiscountCode?        @relation(fields: [discountCodeId], references: [id])
   items                OrderItem[]
   statusLogs           OrderStatusLog[]
   loyaltyTransactions  LoyaltyTransaction[]
   history              OrderHistory[]
 
   @@index([userId])
+  @@index([discountCodeId])
   @@index([status])
   @@index([createdAt])
   @@index([paymentMethod])
@@ -142,6 +145,7 @@ model DiscountCode {
   usedCount    Int       @default(0)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+  orders       Order[]
 
   @@index([code])
   @@index([isActive])
