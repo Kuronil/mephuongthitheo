@@ -36,11 +36,22 @@ interface Product {
   tags: string[]
 }
 
+interface Pagination {
+  page: number
+  limit: number
+  totalCount: number
+  totalPages: number
+  hasNext: boolean
+  hasPrev: boolean
+}
 export default function ProcessedProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [quantities, setQuantities] = useState<Record<number, number>>({})
-
+  const [pagination, setPagination] = useState<Pagination | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [advancedFilters, setAdvancedFilters] = useState<any>({})
+  
   // Fetch processed products from API
   useEffect(() => {
     const fetchProducts = async () => {
@@ -121,6 +132,7 @@ export default function ProcessedProductsPage() {
     }).format(price)
   }
 
+
   if (loading) {
     return (
       <main className="min-h-screen bg-white">
@@ -150,6 +162,9 @@ export default function ProcessedProductsPage() {
         </div>
       </div>
 
+     
+
+      
       {/* Products Grid */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         {products.length === 0 ? (

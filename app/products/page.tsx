@@ -4,12 +4,11 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
-import { ShoppingCart, Plus, Minus, Eye, Search, Filter, Heart } from "lucide-react"
+import { ShoppingCart, Plus, Minus, Eye, Search, Heart } from "lucide-react"
 import { addToCart } from "@/lib/cart"
 import { addToWishlist, removeFromWishlist } from "@/lib/wishlist"
 import { useAuth } from "@/hooks/useAuth"
 import StockAlert from "@/components/stock-alert"
-import AdvancedSearch from "@/components/advanced-search"
 import toast from "react-hot-toast"
 
 interface Product {
@@ -45,34 +44,19 @@ export default function ProductsPage() {
   const [pagination, setPagination] = useState<Pagination | null>(null)
   const [loading, setLoading] = useState(true)
   const [quantities, setQuantities] = useState<Record<number, number>>({})
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("")
-  const [sortBy, setSortBy] = useState("createdAt")
-  const [sortOrder, setSortOrder] = useState("desc")
   const [currentPage, setCurrentPage] = useState(1)
-  const [advancedFilters, setAdvancedFilters] = useState<any>({})
   const [wishlistItems, setWishlistItems] = useState<Set<number>>(new Set())
 
   // Fetch products from API
-  const fetchProducts = async (page = 1, filters = advancedFilters) => {
+  const fetchProducts = async (page = 1) => {
     try {
       setLoading(true)
       const params = new URLSearchParams({
         page: page.toString(),
         limit: "12",
-        search: filters.search || searchTerm,
-        category: filters.category || selectedCategory,
-        subcategory: filters.subcategory || "",
-        minPrice: (filters.minPrice || 0).toString(),
-        maxPrice: (filters.maxPrice || 999999999).toString(),
-        minRating: (filters.minRating || 0).toString(),
-        maxRating: (filters.maxRating || 5).toString(),
-        sortBy: filters.sortBy || sortBy,
-        sortOrder: filters.sortOrder || sortOrder,
+        sortBy: "createdAt",
+        sortOrder: "desc",
         isActive: "true",
-        inStock: filters.inStock ? "true" : "",
-        isFeatured: filters.isFeatured ? "true" : "",
-        isFlashSale: filters.isFlashSale ? "true" : "",
         excludeCategory: "Thịt chế biến" // Loại trừ sản phẩm chế biến
       })
 
@@ -110,30 +94,6 @@ export default function ProductsPage() {
       setLoading(false)
     }
   }
-
-  // Handle advanced search
-  const handleAdvancedSearch = (filters: any) => {
-    setAdvancedFilters(filters)
-    fetchProducts(1, filters)
-  }
-
-  const handleResetSearch = () => {
-    setAdvancedFilters({})
-    setSearchTerm("")
-    setSelectedCategory("")
-    setSortBy("createdAt")
-    setSortOrder("desc")
-    fetchProducts(1, {})
-  }
-
-  // Search and filter
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      fetchProducts(1)
-    }, 500)
-
-    return () => clearTimeout(timeoutId)
-  }, [searchTerm, selectedCategory, sortBy, sortOrder])
 
   // Initial load
   useEffect(() => {
@@ -256,15 +216,6 @@ export default function ProductsPage() {
           <h1 className="text-4xl font-bold mb-2">Thịt tươi ngon</h1>
           <p className="text-orange-100">Chọn từ các sản phẩm thịt tươi chất lượng cao, không qua chế biến</p>
         </div>
-      </div>
-
-      {/* Advanced Search */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <AdvancedSearch 
-          onSearch={handleAdvancedSearch}
-          onReset={handleResetSearch}
-          loading={loading}
-        />
       </div>
 
       {/* Results Summary */}
